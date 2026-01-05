@@ -61,11 +61,6 @@ The bot supports:
 
 ## 🔧 Setup Instructions
 
-### 1. Import Workflow
-- Open n8n
-- Import the provided JSON file
-
-## 🔧 Setup Instructions
 
 ### 1. Import Workflow
 - Open n8n
