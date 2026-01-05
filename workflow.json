@@ -1,0 +1,637 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "url": "URL-TO-YOUR-WEBCAM-JPG",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-160, 0],
+      "id": "8e3e8a13-0168-4a3b-b2f6-fbad6ad14f01",
+      "name": "HTTP Request Temparatur"
+    },
+    {
+      "parameters": {
+        "url": "URL-TO-YOUR-WEBCAM-JPG",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-240, 496],
+      "id": "0909d48d-e7b4-438e-b118-e108852ae789",
+      "name": "HTTP Request Live Bild"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [1184, 400],
+      "id": "8e3bd91b-fdb3-4b56-bb78-b0c4cd9cb91d",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "chatId": "0",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1888, 400],
+      "id": "21cecaa7-6546-42c5-a350-18e1ae94789e",
+      "name": "Send a text message",
+      "webhookId": "8ab7dd60-1470-450d-bb16-d716ca904330"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea8f04dd-9e2e-4970-9c54-667860b5f815",
+              "name": "image_result",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [384, 496],
+      "id": "8e906cae-d031-49fb-ba36-baa5b5faffa8",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [-1936, 288],
+      "id": "6aafe243-974a-4c9b-9d6a-394d412e48e3",
+      "name": "Telegram Trigger",
+      "webhookId": "94adc0af-6328-429f-9da5-6c7fbb2e4b4a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4bd67f21-aff7-463e-9ad3-b534c7b77a52",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-1712, 288],
+      "id": "d1d80b15-f0d6-4b68-89d8-12cdd5794494",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "0",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-448, 1152],
+      "id": "748f4112-3087-4420-9d2d-3874cc4a9df8",
+      "name": "Send a photo message1",
+      "webhookId": "27c4cb57-1ccb-4bd2-8dfd-657a04c54aff"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Analysiere das Bild und gib GENAU zwei Werte zurück:\n\n1) weather = eines der folgenden Wörter:\n- NONE = kein Schneefall, kein Schnee auf dem Boden, kein starker Nebel\n- SNOW = Schnee auf dem Boden, aber KEIN Schneefall und KEIN starker Nebel\n- SNOWFALL = sichtbarer aktueller Schneefall (egal ob Schnee auf dem Boden liegt)\n- FOG = NUR wenn der Nebel sehr stark ist: Sichtweite deutlich reduziert, Konturen verschwinden, der Horizont kaum bis gar nicht erkennbar ist. KEIN Schnee auf dem Boden.\n- SNOWFOG = Schnee auf dem Boden UND gleichzeitig sehr starker Nebel gemäß obiger Kriterien.\n- DARK = Es ist dunkel und du kannst keine analyse machen\n\n2) people = eines der folgenden Wörter:\n- PEOPLE_LOW = weniger als 5 Personen\n- PEOPLE_MEDIUM = zwischen 5 und 15 Personen\n- PEOPLE_HIGH = mehr als 15 Personen\n\nWICHTIG:\n- Leichter Dunst oder leichte Trübung zählt NICHT als FOG.\n- Antworte exakt und ausschließlich im folgenden JSON-Format, ohne zusätzliche Wörter, Erklärungen oder Satzzeichen:\n\n{\n \"weather\": \"...\",\n \"people\": \"...\"\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [48, 496],
+      "id": "68a2ab9a-c111-4b35-b1d2-843198a7c543",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "url": "URL-TO-YOUR-WEBCAM-JPG",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-832, 1152],
+      "id": "8a0016ba-1251-4b1b-b5b1-c816eb6aa1a7",
+      "name": "HTTP Request Live Bild1"
+    },
+    {
+      "parameters": {
+        "chatId": "0",
+        "text": "=🤖 Verfügbare Befehle\n\n/status\nZeigt dir den aktuellen Status am Feldberg:\n• aktuelles Webcam-Bild\n• Wetterlage & Temperatur\n• Schnee-Tendenz für die nächsten Tage\n\n/image\nSendet dir ausschließlich das aktuelle Live-Webcam-Bild.\n\nℹ️ Andere Befehle werden nicht unterstützt.\nBitte nutze nur /status oder /image.\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-752, 576],
+      "id": "300e4607-e697-4b1d-b2ab-cc5e574f218d",
+      "name": "Send a text message1",
+      "webhookId": "8ab7dd60-1470-450d-bb16-d716ca904330"
+    },
+    {
+      "parameters": {
+        "content": "## \"/image\" handler - requesting live image via HTTP + sending only image\n## \"/status\" handler --> sends image ",
+        "height": 544,
+        "width": 1056
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-1072, 928],
+      "typeVersion": 1,
+      "id": "b1b51eb7-29a0-43df-8fcf-d0758e3515d8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Requesting temperature via HTTP + generating structured output via JS",
+        "height": 352,
+        "width": 896
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-320, -112],
+      "typeVersion": 1,
+      "id": "3f7a120d-9960-480d-ba18-465e63516eec",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Requesting live image via HTTP + analyzing via LLM",
+        "height": 448,
+        "width": 1040
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-352, 400],
+      "typeVersion": 1,
+      "id": "8b9d6a76-2ae4-45c9-8e83-0d065847d41c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Merge temperature / image analysis + Response handler",
+        "height": 528,
+        "width": 1248
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [960, 208],
+      "typeVersion": 1,
+      "id": "78781850-4af0-4fe5-9dd0-0f00ff2293f3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Error handler\n**only \"/image\" and \"/status\" are allowed",
+        "height": 272,
+        "width": 304,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-848, 464],
+      "typeVersion": 1,
+      "id": "51b97aa4-2982-490f-8735-70d86a14ec71",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Checking ChatID",
+        "height": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-1776, 192],
+      "typeVersion": 1,
+      "id": "8e56bdde-9249-4136-ac0b-53ee858065c3",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9ba68238-dff8-4551-a9a5-19ed4667a93c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "60eee5cc-b526-41af-8138-55a13b5848ef",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f487b2ce-7c77-4d54-a945-f946d0d94e0a",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "^/(status|image)$",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notRegex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [-1120, 272],
+      "id": "97d7f4d5-ea11-400e-844e-b2149d0020eb",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "## Ignore upper and lower case writing",
+        "height": 224,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-1488, 192],
+      "typeVersion": 1,
+      "id": "959c5552-d17c-472b-93b3-3425ac2c7ebe",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  ...$json,\n  message: {\n    ...$json.message,\n    text: $json.message.text.toLowerCase().trim()\n  }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1424, 272],
+      "id": "baa0980d-6d09-4bd1-abc9-a279ab535773",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===============================\n// Status – Final Code\n// ===============================\n\n// --- IMAGE RESULT (LLM / Fallback) ---\nlet imageRaw = $json.image_result;\n\n// Fallback: Nacht / kein LLM / leerer Branch\nif (!imageRaw) {\n  imageRaw = {\n    weather: \"DARK\",\n    people: null\n  };\n}\n\n// Falls LLM String mit ```json``` geliefert hat → säubern\nif (typeof imageRaw === \"string\") {\n  imageRaw = imageRaw\n    .replace(/```json/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\n// Finales Image-Objekt\nconst image = typeof imageRaw === \"string\"\n  ? JSON.parse(imageRaw)\n  : imageRaw;\n\n// --- WEATHER DATA (API) ---\nconst temperature = $json.temperature;\nconst snowfall_now = $json.snowfall_now;\nconst snow_next = $json.snow_next;\n\n// --- SAFE KEYS ---\nconst weatherKey = image?.weather ?? \"DARK\";\nconst peopleKey = image?.people ?? null;\n\n// --- MAPPINGS ---\nconst weatherMap = {\n  NONE: \"Kein Schnee, klare Sicht\",\n  SNOW: \"Schnee liegt, kein Schneefall\",\n  SNOWFALL: \"Aktueller Schneefall\",\n  FOG: \"Starker Nebel\",\n  SNOWFOG: \"Schnee & starker Nebel\",\n  DARK: \"Keine Bildanalyse möglich (zu dunkel)\"\n};\n\nconst peopleMap = {\n  PEOPLE_LOW: \"wenige\",\n  PEOPLE_MEDIUM: \"mittel\",\n  PEOPLE_HIGH: \"viele\"\n};\n\n// --- WEBCAM TEXT ---\nconst webcamWeatherText =\n  weatherMap[weatherKey] || \"unbekannt\";\n\nconst peopleText =\n  weatherKey === \"DARK\"\n    ? \"nicht ermittelbar\"\n    : (peopleMap[peopleKey] || \"unbekannt\");\n\n// --- WEATHER REPORT ---\nconst snowfallNowText = snowfall_now ? \"ja\" : \"nein\";\nconst snowNextText = snow_next || \"nein\";\n\n// --- FINAL TELEGRAM MESSAGE ---\nconst text =\n  \"⛰️ Aktuelle Wetterlage (Webcam): \" + webcamWeatherText + \"\\n\" +\n  \"🌡️ Aktuelle Temperatur: \" + temperature + \"°C\\n\" +\n  \"👥 Personen auf dem Bild: \" + peopleText + \"\\n\\n\" +\n  \"🌨 Schneefall laut Wetterbericht:\\n\" +\n  \"• aktuell: \" + snowfallNowText + \"\\n\" +\n  \"• nächste Tage: \" + snowNextText;\n\nreturn [{ text }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1504, 400],
+      "id": "df5a6329-4627-4af4-b606-b3babfb9e2b3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const times = $json.hourly.time;\nconst temps = $json.hourly.temperature_2m;\nconst snowfall = $json.hourly.snowfall;\n\nconst now = new Date();\n\nfunction toHourKey(d) {\n  const yyyy = d.getFullYear();\n  const mm = String(d.getMonth() + 1).padStart(2, \"0\");\n  const dd = String(d.getDate()).padStart(2, \"0\");\n  const hh = String(d.getHours()).padStart(2, \"0\");\n  return `${yyyy}-${mm}-${dd}T${hh}:00`;\n}\n\nlet idx = times.indexOf(toHourKey(now));\n\nif (idx === -1) {\n  let bestI = 0;\n  let bestDiff = Infinity;\n  const nowMs = now.getTime();\n\n  for (let i = 0; i < times.length; i++) {\n    const tMs = new Date(times[i]).getTime();\n    const diff = Math.abs(tMs - nowMs);\n    if (diff < bestDiff) {\n      bestDiff = diff;\n      bestI = i;\n    }\n  }\n  idx = bestI;\n}\n\nconst temperature = temps[idx];\nconst snowfall_now = snowfall[idx] > 0;\n\nlet snow_next = \"nein\";\nconst limit = new Date(now);\nlimit.setDate(limit.getDate() + 14);\n\nfor (let i = idx; i < times.length; i++) {\n  if (snowfall[i] > 0) {\n    const t = new Date(times[i]);\n    if (t <= limit) {\n      snow_next = times[i].split(\"T\")[0];\n      break;\n    }\n  }\n}\n\nreturn [{\n  temperature,\n  snowfall_now,\n  snow_next\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "id": "c4fc6eb1-5e00-4603-9465-d4400c2bf03d",
+      "name": "Aktuelle Temparatur und Schnee inkl Forecast"
+    },
+    {
+      "parameters": {
+        "model": "google/gemma-3-4b-it:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [48, 704],
+      "id": "64d03704-473d-48d0-8423-ca4c1f4ca0d6",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "36c03eb3-911d-47f1-9d05-c0c831c76b35",
+              "leftValue": "={{ $now.toDateTime().setZone('Europe/Berlin').hour }}",
+              "rightValue": 22,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "dba321be-386a-402b-9c56-e773d47259e4",
+              "leftValue": "={{ $now.toDateTime().setZone('Europe/Berlin').hour }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [-672, 336],
+      "id": "bcb7bc1d-5997-4861-9e7c-afaa3612902b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const hour = new Date().getHours();\nconst isNight = hour >= 22 || hour <= 6;\n\nif (isNight) {\n  return [{\n    image_result: {\n      weather: \"DARK\",\n      people: null\n    }\n  }];\n}\nreturn $items();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 1008],
+      "id": "83d7f61e-be7d-4dc8-9995-d4d9801712c7",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "content": "## No Image analysis via LLM at night\n### 10pm - 5am will just return \"DARK\"",
+        "height": 320,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [240, 912],
+      "typeVersion": 1,
+      "id": "8cb4e742-c6a0-4bd0-a996-985c7a4d98c5",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "HTTP Request Temparatur": {
+      "main": [
+        [
+          {
+            "node": "Aktuelle Temparatur und Schnee inkl Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Live Bild": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Live Bild1": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Temparatur",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request Live Bild1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request Live Bild1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aktuelle Temparatur und Schnee inkl Forecast": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request Live Bild",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "e3694c31dbf70fa3e0984cceadc3d90e46698796eefc05d1cbae643ac02ed28d"
+  }
+}
